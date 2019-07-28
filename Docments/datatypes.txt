@@ -1,0 +1,9 @@
+two types of data types
+
+ premitive data types
+  string, 
+  bool
+
+ reference data types
+
+ Dynanamically typed language
