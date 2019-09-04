@@ -23,7 +23,7 @@
 // });
 // console.log(lis);         
 //document.querySelectorAll
-let items = document.querySelectorAll('ul.collection-item');
+let items = document.querySelectorAll('li.collection-item');
 items.forEach(function(item,index){
   item.textContent = `${index}: Hello`;
 });
