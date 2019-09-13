@@ -1,135 +1,58 @@
-//Defien UI vars
-const form = document.querySelector('#task-form');
-const taskList = document.querySelector('.collection');
-const clearBtn= document.querySelector('.clear-task');
-const filter = document.querySelector('#filter');
-const taskInput = document.querySelector('#task');
+//listen for submit
+document.getElementById('loan-form').addEventListener('submit',function(e){
+//Hide results
+document.getElementById('resluts').style.display= 'none';
+//show loader
+document.getElementById('loading').style.display ='block'
 
-// load alll evvvnet lister
-loadEventListners()
+setTimeout(calculateResults,2000);
+e.preventDefault();
+});
+//CalculateResults
+function calculateResults(){
+  //Ui variable
+  const ammount = document.getElementById('amount');
+  const interest = document.getElementById('intrest');
+  const years = document.getElementById('years');
+  const monthlyPayment = document.getElementById('monthly-payment');
+  const totalPayment = document.getElementById('total-payment');
+  const totalIntrest = document.getElementById('Total-Intrest');
 
-//load all event 
-function loadEventListners() {
-  //add TAsk Event
-  form.addEventListener('submit', addTask);
-  //DOM LOAD EVENT
-  document.addEventListener('DOMContentLoaded',getTasks);
-  taskList.addEventListener('click', remove);
-  //clear task event
-  clearBtn.addEventListener('click',cleartasks);
-  //FILTER TASK EVENT
-  filter.addEventListener('keyup', filterTask);
-}
 
-//get Tasks Form local storage
-function getTasks(){
-  if(localStorage.getItem('tasks')=== null){
-    tasks=[];
+  const prinicipal = parseFloat(ammount.value);
+  const calculatedInterest = parseFloat (interest.value)/100/12;
+  const calculatedPayments = parseFloat(years.value)*12;
+
+  const x =  Math.pow(1+calculatedInterest,calculatedPayments);
+  const monthly = (prinicipal*x*calculatedInterest)/(x-1);
+
+  if(isFinite(monthly)){
+    monthlyPayment.value = monthly.toFixed(2);
+    totalPayment.value = (monthly*calculatedPayments).toFixed(2);
+    totalIntrest.value = ((monthly*calculatedPayments)-prinicipal).toFixed(2);
+    document.getElementById('resluts').style.display= 'block';
+    document.getElementById('loading').style.display ='none'
   }else{
-    tasks = JSON.parse(localStorage.getItem('tasks'));
-  }
-  tasks.forEach(function(task){
-    const li = document.createElement('li');
-    li.className ='collection-item';
-    //create text node
-    li.appendChild(document.createTextNode(task));
-    //create new link elemetn 
-    const link = document.createElement('a');
-    link.className = 'delete-item secondry-content';
-    //add icon html
-    link.innerHTML ='<i class = "fa fa-remove"></i>'
-    li.appendChild(link);
-    taskList.appendChild(li);
-    //Store in local storage
-  //storeTaskInLocalStorage(taskInput.value);
-//taskInput.value='';
-  });
-}
-//addTask
-function addTask(e) {
-if(taskInput.value === '') {
-  alert('add Task');
-}else {
-  const li = document.createElement('li');
-  li.className ='collection-item';
-  //create text node
-  li.appendChild(document.createTextNode(taskInput.value));
-  //create new link elemetn 
-  const link = document.createElement('a');
-  link.className = 'delete-item secondry-content';
-  //add icon html
-  link.innerHTML ='<i class = "fa fa-remove"></i>'
-  li.appendChild(link);
-  taskList.appendChild(li);
-  //Store in local storage
-  storeTaskInLocalStorage(taskInput.value);
-taskInput.value='';
-}
-
-  e.preventDefault();
-}
-
-function remove(e){
-  if(e.target.parentElement.classList.contains('delete-item')){
-    if(confirm('Are you sure')){
-    e.target.parentElement.parentElement.remove();
-    alert(`${e.target.parentElement.parentElement.innerText} deleting value`);
-      //remove fom the local storge
-      removeTaskFromLocalStorage(e.target.parentElement.parentElement);
-    }
+  showError('Please Check Your numbers');
   }
 }
+function showError(error){
+  document.getElementById('resluts').style.display= 'none';
+  document.getElementById('loading').style.display ='none'
+  const errordiv = document.createElement('div');
 
-function removeTaskFromLocalStorage(taskItem){
-  console.log(taskItem);
-  let tasks;
-  if(localStorage.getItem('tasks')=== null){
-    tasks=[];
-  }else{
-    tasks = JSON.parse(localStorage.getItem('tasks'));
-  }
-  tasks.forEach(function(task,index){
-    if(taskItem.textContent === task){
-      tasks.splice(index,1);
-    }
-  });
-  localStorage.setItem('tasks', JSON.stringify(tasks));
-}
+  const card = document.querySelector('.card');
+  const heading = document.querySelector('.heading');
+  //add lcas
+  errordiv.className = 'alert alert-danger';
 
-function cleartasks(e){
-  //taskList.innerHTML = ''
-  while(taskList.firstChild){
-    taskList.removeChild(taskList.firstChild);
-  }
-  //clear task from Local Storage
-  cleartasksFromLocalStorage();
-}
-function cleartasksFromLocalStorage(){
-  localStorage.clear();
-}
+  // Create Text node and append to div
+  errordiv.appendChild(document.createTextNode(error));
+  card.insertBefore(errordiv, heading);
+  //clear error after 3 set
+  setTimeout(clearError, 3000);
+};
 
-//JSPREF.COM
-
-function filterTask(e){
-const text = e.target.value.toLowerCase();
-document.querySelectorAll('.collection-item').forEach(function(task){
-  const item= task.firstChild.textContent;
-  if(item.toLowerCase().indexOf(text)!= -1){
-    task.style.display ='block'
-  }else{
-    task.style.display ='none'
-  }
-})
+function clearError(){
+  document.querySelector('.alert').remove();
 }
-
-function storeTaskInLocalStorage(task){
-let tasks;
-if(localStorage.getItem('tasks')=== null){
-  tasks=[];
-}else{
-  tasks = JSON.parse(localStorage.getItem('tasks'));
-}
-tasks.push(task);
-localStorage.setItem('tasks',JSON.stringify(tasks));
-}
-
